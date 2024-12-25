@@ -1,0 +1,142 @@
+#!/bin/bash
+
+# Check for Ubuntu
+if [ "$os" != "blackhat" ]; then
+    echo "=============================================="
+    echo "Windows on Cloud Installed by @amjiddader"
+    echo "For help create issue on below github repo."
+    echo "https://github.com/amjiddader/windows-on-cloud"
+    echo "Version: github_0.1"
+    echo "==============================================="
+   # exit 1
+fi
+
+# Function to download and install OS
+install_os() {
+    echo "================================================="
+    echo "Choose a CDN (Recommended CDN 1):"
+    echo "1. wansaw.com    |  ONLINE  "
+    echo "2. sourceforge   |  OFFLINE "
+    echo "3. archive.org   |  OFLLINE"
+    echo "4. Google Drive  |  OFFLINE "
+    echo "5. Cloudflare R2 |  OFFLINE "
+    echo "Note: Choose Mirror 1 (Very Fast) unless others are online."
+    echo "================================================="
+    read -p "Choose a CDN  (1-5)  : " cdn_choice
+
+    case $cdn_choice in
+        1) cdn="windows-on-cloud.wansaw.com/download.aspx?file=";;
+        2) cdn="archive.org/download/windows11-tiny11-cloudvm/";;
+        *) echo "Something went wrong.. Restart Installer and choose mirror 1"; exit 1;;
+    esac
+    echo "================================================="
+    echo "Choose the Windows version you want to install:"
+    echo "1. Windows11 x64_en (DeBolted & Light)"
+    echo "2. Windows11 x64_en (High CPU Usage)"
+    echo "3. Windows10 x64_en (Buggy)"
+    echo "================================================="
+    read -p "Choose your version (1-3): " os_version
+
+    if ! [[ "$os_version" =~ ^[1-3]$ ]]; then
+        echo "Invalid OS version. Exiting."
+        exit 1
+    fi
+
+    # Get Windows logins...
+    if [ "$os_version" == "1" ]; then
+        lou="nexon"
+        lop="KensRansyah"
+        los="l3QmZe4Fo1%2BX3vdSiuLra7z4FPVYMNBiLdl6D67iUXMISfxEcqVyykaCzo%2FoL%2Fjj&expiry=SWYc26JokEFY%2BMgCUCprpg%3D%3D&mac=1d0faa0fff5682bc32d6b714265af179183df8b591b717cc253e1bdfea44d3c9"
+        lof="Windows11 (debolted)"
+    elif [ "$os_version" == "2" ]; then
+        lou="nexon"
+        lop="KensRansyah9"
+        los="c5FIO54kdD6nFpjugqus7IgIDwy2p8UKd0%2FSxfhMT5d3bbE8TUGMPSCVOSf6UF%2BO&expiry=2EPqys8saRDjTvwN2onEDg%3D%3D&mac=a5826d1ad4c17bf54307780a21c0e7c1fc2e30d68a224fdb89f5a888ef0a3305"
+        lof="Windows11 Default"
+    else
+        lou="Administrator"
+        lop="P@ssword64"
+        los="%2FT0jgNe2WAmZTVs7pM04CyXBTle9Vcp%2FpJSMZReQSNU3A6yecfkffJMP2CL3YNH2&expiry=SWYc26JokEFY%2BMgCUCprpg%3D%3D&mac=da777e8fb6d1b0d2f9f6e48acd61496594910144ebed4ace96359b10d811c9d8"
+        lof="Windows10 Default"
+    fi
+
+    # Install aria2c
+    sleep 1 
+    #echo "Installing aria2c...."
+    #apt update
+    #apt install -y aria2
+
+    # Download OS image
+    #mkdir -p /temp
+    echo "================================================="
+    # Automatically determine primary disk path
+    #primary_disk=$(lsblk -no NAME,MOUNTPOINT | awk '$2=="/" {print $1}' | head -n 1)
+    primary_disk=$(df -h /mnt | awk 'NR==2 {print $1}')
+
+    echo "Installing Windows in $primary_disk"
+    echo "If you want to install in another disk or if $primary_disk is not correct disk.."
+    echo "Press CTRL+C to exit and Mount your disk then run installer again.."
+    echo "Make sure you have mounted your disk already..."
+    echo "================================================="
+    echo "Continung in 5 secons..............."
+    echo "================================================="
+    sleep 5
+    if [ -z "$primary_disk" ]; then
+        read -p "Could not detect the primary disk. Enter disk path where Windows will be installed (e.g., /dev/vda): " primary_disk
+    fi
+
+    # Install custom OS using dd and gunzip
+    echo "Downloading $lof Now..." 
+    echo "================================================="
+    #aria2c --check-certificate=false -x 16 -s 16 "https://$cdn/$los" -o "windows.gz"
+    sleep 1
+    wget -O- "https://$cdn$los" | gunzip -c | dd of="$primary_disk" bs=4M status=progress 
+    echo "================================================="
+    # echo "Unzipping downloaded file "
+    #gunzip -c "windows.gz" | dd of="$primary_disk" bs=4M
+    echo "================================================="
+    echo "Removing Junk if any..."
+    rm *
+    #aria2c --file-allocation=none --check-certificate=false -x 16 -s 16 "https://$cdn/$los" -o - | gunzip -c | dd of="$primary_disk" bs=4M
+    #curl -L --retry 5 --speed-time 10 -C --parallel-max 16 "https://$cdn/$los" -o - | gunzip -c | dd of="$primary_disk" bs=4M
+    #wget -O- "https://$cdn/$los" | gunzip -c |dd of="$primary_disk" bs=4M
+    #wget -O - "url" | gunzip -c | dd of=/dev/vda bs=4M conv=fsync 
+
+
+    echo "================================================="
+    echo "Thank you for using the windows-on-cloud installer..."
+    sleep 1
+    echo "..................."
+    echo "..................................."
+    echo "..................................................."
+    echo "..................................................................."
+    echo "Installed $lof but you may need to set up Networking"
+    echo "Open your browser shell and change your network setting..."
+    # Display installed OS info
+    sleep 1
+    echo "================"
+    echo "Server Login Information:"
+    echo "Username: $lou"
+    echo "Password: $lop"
+    echo "==============="
+    if [ "$os_version" == "1" ]; then
+        echo "This is a debolted version of windows 11."
+        echo "Updates are disabled and all microsoft app are remove."
+        echo "On Boot it may not show task bar, Open Brave or Trash and explorer will restart."
+        echo "Setup Network Manually."
+        echo "You need to manully install some VC++"
+        echo "TightVNC Password: KensRansyah"
+    fi
+    echo "=============="
+    echo "For help, check https://github.com/amjiddader/windows-on-cloud"
+    echo "Important: Do not reboot. First disable recovery mode"
+    echo "Select Boot From HardDisk"
+    echo "Power OFF and then Power ON & enjoy..."  
+    echo "================================================="
+
+    echo "Friendly Advice: (this script is clear and unencrypted) But Running scripts from the internet without verifying their content can be risky.. "
+    sleep 2
+}
+
+# Main script execution
+install_os
