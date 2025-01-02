@@ -7,7 +7,7 @@
 Download file Installernya
 
 ```jsx
-wget [https://raw.githubusercontent.com/slightnich/win/refs/heads/main/installer.sh]
+wget https://raw.githubusercontent.com/slightnich/win/refs/heads/main/installer.sh
 ```
 
 Beri permission ke file tersebut
